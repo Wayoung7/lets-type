@@ -18,18 +18,29 @@ pub fn view(model: &mut Model, f: &mut Frame) {
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded)
             .title(
+                Title::from(model.time_elapsed.as_secs().to_string().white())
+                    .position(Position::Bottom)
+                    .alignment(Alignment::Center),
+            )
+            .title(
+                Title::from(format!("WPM: {}", model.WPM.to_string()).yellow())
+                    .position(Position::Bottom)
+                    .alignment(Alignment::Left),
+            )
+            .title(
                 Title::from(format!("Accuracy: {:.1}%", 100. * model.accuracy))
                     .position(Position::Bottom)
                     .alignment(Alignment::Right),
             )
             .title_style(Style::default().fg(Color::LightGreen).italic());
+
         // f.render_widget(Paragraph::new(format!("{:?}", model.app_state)), f.size());
         // f.render_widget(
         //     Paragraph::new(format!("{}", model.current_words)),
         //     f.size().offset(Offset { x: 0, y: 4 }),
         // );
         let binding = model.current_words.clone();
-        let (should_typed, untyped) = binding.split_at(model.current_typed_len());
+        let (should_typed, not_typed) = binding.split_at(model.current_typed_len());
         // f.render_widget(
         //     Paragraph::new(typed.bg(Color::Green))
         //         .block(block.clone())
@@ -37,7 +48,7 @@ pub fn view(model: &mut Model, f: &mut Frame) {
         //     f.size(),
         // );
         // f.render_widget(
-        //     Paragraph::new(untyped.fg(Color::Gray))
+        //     Paragraph::new(not_typed.fg(Color::Gray))
         //         .block(block)
         //         .wrap(Wrap { trim: true }),
         //     f.size(),
@@ -47,18 +58,21 @@ pub fn view(model: &mut Model, f: &mut Frame) {
 
         for (ct, st) in model.current_typed.chars().zip(should_typed.chars()) {
             if ct == st {
+                // Correctly typed char
                 line.push(Span::styled(
                     ct.to_string(),
                     Style::default().fg(Color::LightGreen),
                 ))
             } else {
+                // Wrongly typed char
                 line.push(Span::styled(
                     st.to_string(),
                     Style::default().bg(Color::LightRed),
                 ))
             }
         }
-        if let Some(next_char) = untyped.chars().nth(0) {
+        if let Some(next_char) = not_typed.chars().nth(0) {
+            // Next char
             line.push(Span::styled(
                 next_char.to_string(),
                 Style::default()
@@ -66,12 +80,12 @@ pub fn view(model: &mut Model, f: &mut Frame) {
                     .underline_color(Color::White)
                     .fg(Color::White),
             ));
+            // Not typed chars
             line.push(Span::styled(
-                untyped.strip_prefix(next_char).unwrap(),
-                Style::default().fg(Color::Gray),
+                not_typed.strip_prefix(next_char).unwrap(),
+                Style::default().fg(Color::Gray).dim(),
             ));
         }
-        // (model.current_typed.chars().zip(other), model.current_words.chars()).
 
         f.render_widget(
             Paragraph::new(Line::default().spans::<Vec<Span>>(line))

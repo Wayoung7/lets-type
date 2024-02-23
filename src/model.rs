@@ -1,4 +1,8 @@
-use std::{fs::File, io::BufReader};
+use std::{
+    fs::File,
+    io::BufReader,
+    time::{Duration, SystemTime},
+};
 
 #[derive(Debug)]
 pub struct Model {
@@ -13,6 +17,9 @@ pub struct Model {
     pub enable_backspace: bool,
     pub num_words_each_line: usize,
     pub accuracy: f32,
+    pub time_elapsed: Duration,
+    pub num_words_finished: usize,
+    pub WPM: f32,
 }
 
 impl Default for Model {
@@ -29,6 +36,9 @@ impl Default for Model {
             enable_backspace: true,
             num_words_each_line: 15,
             accuracy: 1.,
+            time_elapsed: Duration::ZERO,
+            num_words_finished: 0,
+            WPM: 0.,
         }
     }
 }

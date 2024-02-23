@@ -4,6 +4,7 @@ pub enum Message {
     TypingMessage(TypingMsg),
     ReloadWordsMsg,
     CalAccuracyMsg,
+    CalWPMMsg,
 }
 
 #[derive(Debug)]

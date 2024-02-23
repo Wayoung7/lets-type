@@ -23,7 +23,7 @@ pub fn update(model: &mut Model, msg: Message) -> Option<Message> {
         Message::AppMessage(app_msg) => handle_app_msg(model, app_msg),
         Message::ReloadWordsMsg => reload_words(model),
         Message::CalAccuracyMsg => cal_accuracy(model),
-        _ => None,
+        Message::CalWPMMsg => cal_wpm(model),
     }
 }
 
@@ -35,37 +35,6 @@ fn handle_type_msg(model: &mut Model, type_msg: TypingMsg) -> Option<Message> {
             } else {
                 Some(Message::TypingMessage(TypingMsg::InputWrongCharMsg(c)))
             }
-            // model.current_typed.push(c);
-            // if c as u8 == model.current_words.as_bytes()[model.current_typed_len()] {
-            //     model.num_correct += 1;
-            // } else {
-            //     model.num_mistake += 1;
-            // }
-            // if model.current_typed_len() == model.current_words_len() {
-            //     // Finish a line
-            //     Some(Message::ReloadWordsMsg)
-            // } else {
-            //     None
-            // }
-
-            // if c as u8 == model.current_words.as_bytes()[model.current_typed_len()] {
-            //     // Typed correct word
-            //     model.current_typed.push(c);
-            //     model.num_correct += 1;
-            //     if model.current_typed_len() == model.current_words_len() {
-            //         // Finish a line
-            //         Some(Message::ReloadWordsMsg)
-            //     } else {
-            //         None
-            //     }
-            // } else {
-            //     // Typed wrong word
-            //     if model.allow_typing_after_mistake {
-            //         model.num_mistake += 1;
-            //     } else {
-            //         None
-            //     }
-            // }
         }
         TypingMsg::InputCorrectCharMsg(c) => {
             model.current_typed.push(c);
@@ -145,11 +114,16 @@ fn cal_accuracy(model: &mut Model) -> Option<Message> {
     None
 }
 
+fn cal_wpm(model: &mut Model) -> Option<Message> {
+    model.WPM = model.num_words_finished as f32 / (model.time_elapsed.as_secs_f32() / 60.);
+    None
+}
+
 fn reload_words(model: &mut Model) -> Option<Message> {
     model.current_words = get_words(model, model.num_words_each_line).unwrap();
     model.current_typed = String::new();
-    // Some(Message::AppMessage(AppMsg::RunMsg))
-    None
+    model.num_words_finished += model.num_words_each_line;
+    Some(Message::CalWPMMsg)
 }
 
 pub fn get_words(model: &mut Model, amount: usize) -> Result<String, Box<dyn Error>> {
@@ -157,9 +131,6 @@ pub fn get_words(model: &mut Model, amount: usize) -> Result<String, Box<dyn Err
     if model.word_start_with != ' ' {
         let reader = &mut model.buf_readers[model.word_start_with as usize - 'a' as usize];
         reader.seek(std::io::SeekFrom::Start(0))?;
-        // let mut index: Vec<i64> = (0..amount)
-        //     .map(|_| thread_rng().gen_range(0..*num_lines as i64))
-        //     .collect();
         reader
             .lines()
             .map(|l| l.expect("Couldn't read line"))
@@ -168,13 +139,6 @@ pub fn get_words(model: &mut Model, amount: usize) -> Result<String, Box<dyn Err
             .for_each(|s| {
                 res.push_str(&format!("{} ", s));
             });
-        // let words = lines.choose_multiple(&mut thread_rng(), amount);
-        // for word in words.iter() {
-        //     res.push_str(&format!("{} ", word));
-        // }
-        // lines
-        //     ;
-        // println!("{m:?}");
     }
     Ok(res)
 }

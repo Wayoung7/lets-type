@@ -19504,7 +19504,7 @@ untinned
 untinseled
 untinselled
 untinted
-untyped
+not_typed
 untypical
 untypically
 untippable
