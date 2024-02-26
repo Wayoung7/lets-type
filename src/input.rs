@@ -3,11 +3,11 @@ use std::{error::Error, time::Duration};
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 
 use crate::{
-    model::{AppState, Model, TypingState},
+    model::{AppState, Model},
     msg::{AppMsg, Message, TypingMsg},
 };
 
-pub fn handle_input(model: &mut Model) -> Result<Option<Message>, Box<dyn Error>> {
+pub fn handle_input(model: &mut Model) -> Result<Vec<Message>, Box<dyn Error>> {
     if event::poll(Duration::from_millis(10))? {
         if let Event::Key(key) = event::read()? {
             if key.kind == event::KeyEventKind::Press {
@@ -15,41 +15,41 @@ pub fn handle_input(model: &mut Model) -> Result<Option<Message>, Box<dyn Error>
             }
         }
     }
-    Ok(None)
+    Ok(Vec::new())
 }
 
-fn handle_key(model: &mut Model, key: KeyEvent) -> Option<Message> {
+fn handle_key(model: &mut Model, key: KeyEvent) -> Vec<Message> {
     match key.code {
         KeyCode::Esc => {
-            if model.app_state == AppState::Setting {
-                Some(Message::AppMessage(AppMsg::RunMsg))
+            if model.app_state == AppState::Info {
+                vec![Message::AppMessage(AppMsg::RunMsg)]
             } else if model.app_state.is_running() {
-                Some(Message::AppMessage(AppMsg::QuitMsg))
+                vec![Message::AppMessage(AppMsg::QuitMsg)]
             } else {
-                None
+                Vec::new()
             }
         }
         KeyCode::Tab => {
-            if model.app_state != AppState::Setting && model.app_state != AppState::Loading {
-                Some(Message::AppMessage(AppMsg::SetMsg))
+            if model.app_state != AppState::Info && model.app_state != AppState::Loading {
+                vec![Message::AppMessage(AppMsg::InfoMsg)]
             } else {
-                None
+                vec![Message::AppMessage(AppMsg::RunMsg)]
             }
         }
         KeyCode::Backspace => {
             if model.app_state.is_running() && model.enable_backspace {
-                Some(Message::TypingMessage(TypingMsg::BackSpaceMsg))
+                vec![Message::TypingMessage(TypingMsg::BackSpaceMsg)]
             } else {
-                None
+                Vec::new()
             }
         }
         KeyCode::Char(c) => {
             if c.is_alphabetic() || c == ' ' {
-                Some(Message::TypingMessage(TypingMsg::InputCharMsg(c)))
+                vec![Message::TypingMessage(TypingMsg::InputCharMsg(c))]
             } else {
-                None
+                Vec::new()
             }
         }
-        _ => None,
+        _ => Vec::new(),
     }
 }

@@ -5,12 +5,16 @@ pub enum Message {
     ReloadWordsMsg,
     CalAccuracyMsg,
     CalWPMMsg,
+    RestartTimerMsg,
+    WaitMsg,
+    TypeMsg,
+    EmptyMsg,
 }
 
 #[derive(Debug)]
 pub enum AppMsg {
     QuitMsg,
-    SetMsg,
+    InfoMsg,
     RunMsg,
     InitMsg,
 }

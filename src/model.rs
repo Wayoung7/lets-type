@@ -10,7 +10,6 @@ pub struct Model {
     pub buf_readers: Vec<BufReader<File>>,
     pub current_words: String,
     pub current_typed: String,
-    pub word_start_with: char,
     pub allow_typing_after_mistake: bool,
     pub num_correct: i32,
     pub num_mistake: i32,
@@ -19,7 +18,8 @@ pub struct Model {
     pub accuracy: f32,
     pub time_elapsed: Duration,
     pub num_words_finished: usize,
-    pub WPM: f32,
+    pub wpm: f32,
+    pub timer: SystemTime,
 }
 
 impl Default for Model {
@@ -29,16 +29,16 @@ impl Default for Model {
             buf_readers: Vec::new(),
             current_words: String::new(),
             current_typed: String::new(),
-            word_start_with: 'a',
             allow_typing_after_mistake: true,
             num_correct: 0,
             num_mistake: 0,
             enable_backspace: true,
-            num_words_each_line: 15,
+            num_words_each_line: 30,
             accuracy: 1.,
             time_elapsed: Duration::ZERO,
             num_words_finished: 0,
-            WPM: 0.,
+            wpm: 0.,
+            timer: SystemTime::now(),
         }
     }
 }
@@ -57,7 +57,7 @@ impl Model {
 pub enum AppState {
     Running(TypingState),
     Quiting,
-    Setting,
+    Info,
     Loading,
 }
 
@@ -73,10 +73,6 @@ impl AppState {
 
     pub fn is_waiting(&self) -> bool {
         *self == AppState::Running(TypingState::Waiting)
-    }
-
-    pub fn is_loading(&self) -> bool {
-        *self == AppState::Loading
     }
 }
 
