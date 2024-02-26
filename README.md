@@ -1,14 +1,17 @@
 # Let's Type!
-"Let's Type!" is a terminal application which can let you practise your typing skill. This application is under development currently and only the basic typing function has been implemented.
+"Let's Type!" is a simple terminal application which can let you practise your typing skill. 
 
 ## How to Use This App
+ - Git clone this repository
+ - Cd to this repository
+ - Run the command
 ```
-git clone https://github.com/Yy-Wang7/lets-type.git
-cd lets-type
-cargo run
+cargo run --release
 ```
+ - `Esc` to quit
 
-## Features Considered to be Added
- - A setting page
- - Display WPM
- - Fancy terminal user interface
+## Features
+ - Use colors to indicate correct or wrong words
+ - Display wpm and accuracy
+ - You can add your own words to it by adding .txt files in `words/` directory (one word each line)
+ - You can changes parameters in `Model::default()`
